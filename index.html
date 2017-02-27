@@ -68,19 +68,291 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-Mac上基于Hexo-GitHub搭建技术博客平台" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-Centos7上配置Git客户端" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/" class="article-date">
-  <time datetime="2017-02-14T08:30:58.000Z" itemprop="datePublished">2017-02-14</time>
+    <a href="/2017/02/24/Centos7上配置Git客户端/" class="article-date">
+  <time datetime="2017-02-24T03:22:30.000Z" itemprop="datePublished">2017-02-24</time>
 </a>
     
   </div>
   <div class="article-inner">
     
     
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/24/Centos7上配置Git客户端/">Centos7上配置Git客户端</a>
+    </h1>
+  
+
+      </header>
+    
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Mac上基于Hexo-GitHub搭建技术博客平台"><a href="#Mac上基于Hexo-GitHub搭建技术博客平台" class="headerlink" title="Mac上基于Hexo+GitHub搭建技术博客平台"></a>Mac上基于Hexo+GitHub搭建技术博客平台</h1><h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><ul>
+        <h2 id="更新历史"><a href="#更新历史" class="headerlink" title="更新历史"></a>更新历史</h2><table>
+<thead>
+<tr>
+<th>日期</th>
+<th>版本</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>27 Sep, 2016</td>
+<td>v1.0</td>
+<td>First version</td>
+</tr>
+<tr>
+<td>27 Feb, 2017</td>
+<td>v1.1</td>
+<td>再次整理</td>
+</tr>
+</tbody>
+</table>
+<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>本文档主要讲解如果在一台新购置的阿里云服务器（已经预装Centos7）上进行如下操作的过程：</p>
+<ul>
+<li>服务器信息基本配置</li>
+<li>安装Git</li>
+</ul>
+<p>为了便于说明，步骤中敏感信息已经隐去，而采用如下Mock的信息代替：</p>
+<p>云服务器：</p>
+<ul>
+<li>外网地址：<code>120.11.111.111</code></li>
+<li>原主机名：<code>iZ11a1g1hh1Z</code></li>
+<li>修改后的主机名：<code>web1</code></li>
+<li>root用户密码：<code>Welcome1$</code></li>
+<li>使用Git的用户名：<code>userone</code></li>
+<li>userone的密码：<code>Test1$</code></li>
+<li>Git服务器地址：123.22.222.222</li>
+</ul>
+<p>终端：</p>
+<ul>
+<li>外网地址：<code>106.10.100.100</code></li>
+</ul>
+<h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><ul>
+<li>服务器：阿里云ECS</li>
+<li>配置：2核4G，1M带宽，40G高效云盘</li>
+<li>系统：Centos 7.2</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ lsb_release -a</div><div class="line">LSB Version:   	:core-4.1-amd64:core-4.1-noarch</div><div class="line">Distributor ID:	CentOS</div><div class="line">Description:   	CentOS Linux release 7.2.1511 (Core)</div><div class="line">Release:       	7.2.1511</div><div class="line">Codename:      	Core</div></pre></td></tr></table></figure>
+<ul>
+<li>主机名：test</li>
+</ul>
+<h2 id="配置步骤"><a href="#配置步骤" class="headerlink" title="配置步骤"></a>配置步骤</h2><h3 id="修改主机名"><a href="#修改主机名" class="headerlink" title="修改主机名"></a>修改主机名</h3><p>新购置的服务器，默认只有一个<code>root</code>用户，且主机名比较复杂。为了便于管理，首先考虑修改主机名为容易识别的名称。本例为<code>web1</code>。</p>
+<ul>
+<li>连接服务器</li>
+</ul>
+<p>在终端命令行，使用<code>root</code>用户名和服务器的IP地址，通过ssh命令进行连接</p>
+<p><code>$ ssh root@120.11.111.111</code>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">The authenticity of host &apos;120.11.111.111 (120.11.111.111)&apos; can&apos;t be established.</div><div class="line">ECDSA key fingerprint is SHA256:1jtoYFTDsTtuA3eyGhBILX2Bd2tzel8MJ0GD9ooHbXE.</div><div class="line">Are you sure you want to continue connecting (yes/no)? yes</div><div class="line">Warning: Permanently added &apos;120.11.111.111&apos; (ECDSA) to the list of known hosts.</div><div class="line">root@120.11.111.111&apos;s password:</div></pre></td></tr></table></figure>
+<p>根据提示依次输入<code>yes</code>和密码<code>Welcome1$</code>后，登入系统，显示欢迎语</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Welcome to aliyun Elastic Compute Service!</div><div class="line"></div><div class="line">-bash: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory</div><div class="line"></div><div class="line">[root@iZ11a1g1hh1Z ~]#</div></pre></td></tr></table></figure>
+<p>从命令提示符信息，即<code>[root@iZ11a1g1hh1Z ~]#</code>，可以看到，用户名为<code>root</code>, 当前的主机名为阿里云分配的名称<code>iZ11a1g1hh1Z</code>。</p>
+<ul>
+<li>永久修改主机名（重启后永久生效。配合<code>临时修改主机名</code>步骤，则不需要重启）</li>
+</ul>
+<p>查询当前主机名</p>
+<p><code>$ hostname</code>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">iZ11a1g1hh1Z</div></pre></td></tr></table></figure>
+<p>打开配置文件</p>
+<p><code>$ vi /etc/sysconfig/network</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># Created by anaconda</div><div class="line">PEERNTP=no</div><div class="line">NETWORKING_IPV6=no</div><div class="line">GATEWAY=120.11.111.111</div><div class="line">HOSTNAME=iZ11a1g1hh1Z</div></pre></td></tr></table></figure>
+<p>将<code>HOSTNAME</code>配置项的值修改为<code>web1</code>，即</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HOSTNAME=web1</div></pre></td></tr></table></figure>
+<p>保存退出。</p>
+<ul>
+<li>临时修改主机名（立即生效，重启后失效。配合<code>永久修改主机名</code>步骤，则重启后也不失效）</li>
+</ul>
+<p><code>$ hostname web1</code></p>
+<p>查询当前主机名，若显示为<code>web1</code>，则已经生效</p>
+<p><code>$ hostname</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">web1</div></pre></td></tr></table></figure>
+<ul>
+<li>重新连接服务器</li>
+</ul>
+<p><code>exit</code>退出当前的服务器连接，重新通过ssh连接，根据提示输入密码<code>Welcome1$</code>后登入服务器</p>
+<p><code>$ ssh root@120.11.111.111</code>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">root@120.11.111.111&apos;s password:</div><div class="line">Last login: Tue Sep 20 22:58:21 2016 from 106.10.100.100</div><div class="line"></div><div class="line">Welcome to aliyun Elastic Compute Service!</div><div class="line"></div><div class="line">-bash: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory</div><div class="line">[root@web1 ~]#</div></pre></td></tr></table></figure>
+<p>可以看到命令提示符信息已经变为<code>[root@web1 ~]#</code>，</p>
+<h3 id="创建用户userone，并做Git仓库授权"><a href="#创建用户userone，并做Git仓库授权" class="headerlink" title="创建用户userone，并做Git仓库授权"></a>创建用户userone，并做Git仓库授权</h3><p>使用<code>root</code>登录到云服务器</p>
+<ul>
+<li>创建新用户：<code>userone</code></li>
+</ul>
+<p><code>$ useradd userone</code>  </p>
+<ul>
+<li>为用户<code>userone</code>创建密码</li>
+</ul>
+<p><code>[root@web1 ~]# passwd userone</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Changing password for user anni.</div><div class="line">New password:</div><div class="line">Retype new password:</div><div class="line">passwd: all authentication tokens updated successfully.</div></pre></td></tr></table></figure>
+<p>根据提示信息，分别输入两次密码<code>Test1$</code></p>
+<ul>
+<li>将用户<code>userone</code>添加到sudoers列表（添加后，<code>userone</code>可以执行<code>su</code>命令）</li>
+</ul>
+<p><code>$ visudo</code>  </p>
+<p>将打开配置文件；找到<code>root ALL</code>的内容，在下面添加<code>userone</code>用户的授权，结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">## Allow root to run any commands anywhere</div><div class="line">root    ALL=(ALL)       ALL</div><div class="line">userone    ALL=(ALL)       ALL</div></pre></td></tr></table></figure>
+<ul>
+<li>生成SSH公钥</li>
+</ul>
+<p>切换到<code>userone</code>帐号：</p>
+<p><code>$ su userone</code></p>
+<p>执行下面的命令(邮箱地址替换成为该服务器分配的邮箱地址)，一路回车：</p>
+<p><code>$ ssh-keygen -t rsa -C &quot;web1@example.com&quot;</code></p>
+<p>查看生成的秘钥：</p>
+<p><code>$ ls ~/.ssh/</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">id_rsa  id_rsa.pub</div></pre></td></tr></table></figure>
+<ul>
+<li>Git授权</li>
+</ul>
+<p>将<code>id_rsa.pub</code>提供给<code>Git服务器</code>，以便授权<code>Git服务器</code>代码的访问。</p>
+<ul>
+<li>配置访问<code>git</code>服务器的主机信息</li>
+</ul>
+<p><code>$ vi ~/.ssh/config</code></p>
+<p>输入以下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">HOST git</div><div class="line">HOSTNAME 123.22.222.222</div><div class="line">USER git</div></pre></td></tr></table></figure>
+<p>修改<code>config</code>文件的权限</p>
+<p><code>$ chmod 600 ~/.ssh/config</code></p>
+<h3 id="本地配置无密码登陆web1服务器"><a href="#本地配置无密码登陆web1服务器" class="headerlink" title="本地配置无密码登陆web1服务器"></a>本地配置无密码登陆web1服务器</h3><ul>
+<li>本地电脑配置<code>web1</code>服务器信息</li>
+</ul>
+<p><code>$ vi ~/.ssh/config</code></p>
+<p>输入以下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">HOST web1</div><div class="line">HOSTNAME 120.11.111.111</div><div class="line">USER userone</div></pre></td></tr></table></figure>
+<ul>
+<li>本地电脑修改<code>config</code>文件的权限</li>
+</ul>
+<p><code>$ chmod 600 ~/.ssh/config</code></p>
+<ul>
+<li>使用帐号<code>userone</code>登陆<code>web1</code>服务器：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ssh web1</div><div class="line"></div><div class="line">anni@120.11.111.111&apos;s password:</div></pre></td></tr></table></figure>
+<ul>
+<li>设置无密码登陆</li>
+</ul>
+<p><code>$ vi ~/.ssh/authorized_keys</code></p>
+<p>将本地电脑的公钥内容，拷贝到<code>authorized_keys</code>中</p>
+<ul>
+<li>修改<code>authorized_keys</code>权限</li>
+</ul>
+<p><code>$ chmod 600 ~/.ssh/authorized_keys</code></p>
+<ul>
+<li>重新登陆<code>web1</code>服务器，将不需要密码</li>
+</ul>
+<p><code>$ ssh web1</code></p>
+<h3 id="安装Git"><a href="#安装Git" class="headerlink" title="安装Git"></a>安装Git</h3><ul>
+<li>Yum安装Git</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo yum install git</div><div class="line"></div><div class="line">[sudo] password for anni:</div><div class="line">......</div><div class="line">Is this ok [y/d/N]: y</div><div class="line">......</div></pre></td></tr></table></figure>
+<h3 id="测试Git是否能下载代码"><a href="#测试Git是否能下载代码" class="headerlink" title="测试Git是否能下载代码"></a>测试Git是否能下载代码</h3><ul>
+<li>clone已经授权的代码库，例如<code>testing</code></li>
+</ul>
+<p><code>$ git clone ssh://git/testing</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Cloning into &apos;testing&apos;...</div><div class="line">......</div><div class="line"></div><div class="line">Receiving objects: 100% (216/216), 41.87 KiB | 0 bytes/s, done.</div><div class="line">Resolving deltas: 100% (81/81), done.</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://cosmicocean.github.io/2017/02/24/Centos7上配置Git客户端/" data-id="cizj955zt0002c0997vlm2hm2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Mac上使用Python编程处理PDF" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/02/14/Mac上使用Python编程处理PDF/" class="article-date">
+  <time datetime="2017-02-14T09:55:58.000Z" itemprop="datePublished">2017-02-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/14/Mac上使用Python编程处理PDF/">Mac上使用Python编程处理PDF</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><ul>
+<li>Mac 版本：macOS Sierra Version 10.12.2</li>
+<li>CPU: 3.1GHz Intel Core i7</li>
+<li>Memory: 16GB</li>
+</ul>
+<h2 id="安装软件"><a href="#安装软件" class="headerlink" title="安装软件"></a>安装软件</h2><ul>
+<li>升级pip</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pip install --upgrade pip --user</div></pre></td></tr></table></figure>
+<ul>
+<li>安装python-pdfkit</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ pip install pdfkit</div></pre></td></tr></table></figure>
+<ul>
+<li>安装wkhtmltopdf</li>
+</ul>
+<p>Mac版本通过Safari<a href="http://wkhtmltopdf.org/downloads.html" target="_blank" rel="external">进入页面下载</a>，或64-bit系统直接<a href="http://download.gna.org/wkhtmltopdf/0.12/0.12.4/wkhtmltox-0.12.4_osx-cocoa-x86-64.pkg" target="_blank" rel="external">点击下载</a>。</p>
+<p>  注意，Mac下一定要通过Safari下载安装，否则会提示如下错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">com.apple.installer.pagecontroller error -1</div></pre></td></tr></table></figure>
+<p>参见：<a href="https://discussions.apple.com/thread/2628710?start=0&amp;tstart=0" target="_blank" rel="external">Q: Cannot install .pkg and .mpkg files</a>。</p>
+<p>要wkhtmltopdf是否安装成功，可以在命令行执行命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wkhtmltopdf http://www.sina.com.cn google.pdf</div></pre></td></tr></table></figure>
+<ul>
+<li>Python代码中执行HTML到PDF的转换</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">import pdfkit</div><div class="line"></div><div class="line">pdfkit.from_url(&apos;http://google.com&apos;, &apos;out.pdf&apos;)</div><div class="line">pdfkit.from_file(&apos;test.html&apos;, &apos;out.pdf&apos;)</div><div class="line">pdfkit.from_string(&apos;Hello!&apos;, &apos;out.pdf&apos;)</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://pypi.python.org/pypi/pdfkit/" target="_blank" rel="external">pdfkit 0.6.1</a>：wkhtmltopdf工具的Wrapper，可以将HTML格式转成PDF格式</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://cosmicocean.github.io/2017/02/14/Mac上使用Python编程处理PDF/" data-id="cizj8zuch0001c099gksayy66" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Mac上基于Hexo-GitHub搭建技术博客平台" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/" class="article-date">
+  <time datetime="2017-02-14T08:40:57.000Z" itemprop="datePublished">2017-02-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/">Mac上基于Hexo+GitHub搭建技术博客平台</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><ul>
 <li>Mac 版本：macOS Sierra Version 10.12.2</li>
 <li>CPU: 3.1GHz Intel Core i7</li>
 <li>Memory: 16GB</li>
@@ -215,7 +487,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://cosmicocean.github.io/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/" data-id="ciz58w9g50001lw99x7wljgxw" class="article-share-link">Share</a>
+      <a data-url="http://cosmicocean.github.io/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/" data-id="cizj8zuc30000c099qflgixyk" class="article-share-link">Share</a>
       
       
     </footer>
@@ -234,23 +506,9 @@
 
   
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"></ul>
-    </div>
-  </div>
-
 
   
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      
-    </div>
-  </div>
-
   
     
   <div class="widget-wrap">
@@ -269,7 +527,15 @@
       <ul>
         
           <li>
-            <a href="/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/">(no title)</a>
+            <a href="/2017/02/24/Centos7上配置Git客户端/">Centos7上配置Git客户端</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/14/Mac上使用Python编程处理PDF/">Mac上使用Python编程处理PDF</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/14/Mac上基于Hexo-GitHub搭建技术博客平台/">Mac上基于Hexo+GitHub搭建技术博客平台</a>
           </li>
         
       </ul>
